@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">sastaamart</string>
+    <string name="button_name">Shop with Sastaamart</string>
+    <string name="title_activity_main_screen">MainScreenActivity</string>
+    <string name="main_button">Press Here to Continue</string>
+    <string name="fill_menu_button">Fill Menu</string>
+    <string name="filling_menu_heading_text">Filling Menu</string>
+    <string name="exit_button">Exit</string>
+    <string name="sastaamart">sastaamart</string>
+    <string name="mainscreenname">Brown Butter</string>
+    <string name="page_title">MainScreen</string>
+    <string name="sastaamart_logo">sastaamart logo</string>
+    <string name="product_id">productId</string>
+    <string name="product_search_text">Product ID/Product Name/SKU</string>
+    <string name="hint">productID</string>
+    <string name="spinner_Col_text">Select slot ( A,B, ..E)</string>
+    <string name="spinner_Row_text">Select row( 1, 2, ..5)</string>
+    <string name="Add_Refill_Product">Add/Refill product</string>
+    <string name="spinner_qty_prompt_text">Quantity</string>
+    <string name="qty">qty</string>
+    <string name="hint_qty">Quantity</string>
+    <string name="add_new_product">add new product to DB</string>
+    <string name="done">Done</string>
+
+</resources>
