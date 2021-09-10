@@ -1,11 +1,12 @@
 package com.blackwinsstudio.webview;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -14,21 +15,26 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.webkit.WebView;
 
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class fillMenuscreen extends AppCompatActivity {
+
     LinearLayoutCompat LabelLayout;
     LinearLayout ProductLayout;
     Spinner SlotColValues , SlotRowValues;
     List<String> SlotColList = new ArrayList<String> () ;
     List<String> SlotRowList = new ArrayList<String> () ;
     List<Integer> QtyList = new ArrayList<Integer> () ;
-    Button DoneButton, AddProductDB, AddRefillProduct;
+    Button DoneButton, AddProductDB, AddRefillProduct, CurrentMachineStatus;
     FillProductDetails productDetails = new FillProductDetails ();
     Spinner Quantity;
     Tray trayDetails = new Tray ();
@@ -42,19 +48,23 @@ public class fillMenuscreen extends AppCompatActivity {
     String SetStatus="Processing";
     String SelectedSlot , SelectedRow;
     int productQty =0;
+
+    //Variables used for API call
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_fill_menuscreen);
-        LabelLayout = (LinearLayoutCompat)findViewById (R.id.labellayout);
-        ProductLayout = (LinearLayout)findViewById (R.id.productlayout);
-        productSKU = (TextInputLayout)findViewById (R.id.productID);
-        SlotColValues = (Spinner) findViewById (R.id.selectcolumn);
-        SlotRowValues = (Spinner) findViewById (R.id.selectrow);
-        DoneButton = (Button) findViewById (R.id.done);
-        AddRefillProduct = (Button) findViewById (R.id.Add_RefillProduct);
-        AddProductDB = (Button)findViewById (R.id.AddNewProduct);
-        Quantity = (Spinner)findViewById (R.id.Quantity);
+        LabelLayout = findViewById (R.id.labellayout);
+        ProductLayout = findViewById (R.id.productlayout);
+        productSKU = findViewById (R.id.productID);
+        SlotColValues =  findViewById (R.id.selectcolumn);
+        SlotRowValues =  findViewById (R.id.selectrow);
+        DoneButton =  findViewById (R.id.done);
+        AddRefillProduct =  findViewById (R.id.Add_RefillProduct);
+        AddProductDB = findViewById (R.id.AddNewProduct);
+        CurrentMachineStatus = findViewById (R.id.CurrentMachineStatus);
+        Quantity = findViewById (R.id.Quantity);
         // Spinner adapter for column ( A, B, ...E) slot values
         //Adding the SlotList
         SlotColList.add("A");
@@ -163,6 +173,33 @@ public class fillMenuscreen extends AppCompatActivity {
             }
         });
 
+
+        // Get Current Machine Status from API call
+        CurrentMachineStatus.setOnClickListener (new View.OnClickListener () {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onClick(View view) {
+                AttributeMethods methods = RetrofitClient.getRetrofitInstance ().create (AttributeMethods.class);
+                Call<List<AttributesModel>> call = methods.getMachineInPlaceData (Helper.getAuthToken());
+
+                call.enqueue (new Callback<List<AttributesModel>> () {
+                    @Override
+                    public void onResponse(Call<List<AttributesModel>> call, Response<List<AttributesModel>> response) {
+                        Log.i (ApplicationConstant.TAG, "OnResponse Code"+ response.code ());
+                        //Log.i (ApplicationConstant.TAG, "OnResponse Code"+ response.body ().toString ());
+                        List<AttributesModel> responseData = response.body ();
+                        for(AttributesModel data:responseData){
+                            Log.i(ApplicationConstant.TAG, "Name: " +data.getName () +", " +"ID: "+ data.getID ());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<AttributesModel>> call, Throwable t) {
+                        Log.e (ApplicationConstant.TAG,"onfailure"+ t.getMessage ());
+                    }
+                });
+            }
+        });
     }
 
     public void Opensastaamart(){
