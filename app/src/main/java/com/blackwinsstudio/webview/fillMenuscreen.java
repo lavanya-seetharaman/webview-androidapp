@@ -189,8 +189,9 @@ public class fillMenuscreen extends AppCompatActivity {
                         Log.i (ApplicationConstant.TAG, "OnResponse Code"+ response.code ());
                         List<OrdersModel> orderResponse = response.body ();
                         //Log.i(ApplicationConstant.TAG,String.valueOf (orderResponse.size ()));
-                        Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (orderResponse.get (0).id)+ "Status :" +orderResponse.get(0).status);
-                       // Log.i(ApplicationConstant.TAG,String.valueOf (orderResponse.get (0).line_items.get (0).product_id));
+                        Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (orderResponse.get (0).id)+ "Status :" + orderResponse.get(0).status);
+                        Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (0).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (0).quantity) );
+                        Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (1).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (1).quantity) );
                         /*for(OrdersModel orderData: orderResponse){
                             Log.i(ApplicationConstant.TAG,String.valueOf (orderData.id));
                         }*/
