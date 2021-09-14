@@ -10,4 +10,7 @@ public interface AttributeMethods {
 
     @GET("wc/v3/products/attributes/2/terms")
     Call<List<AttributesModel>> getMachineInPlaceData( @Header("Authorization") String authkey);
+
+    @GET("wc/v3/orders")
+    Call<List<OrdersModel>> getAllOrders(@Header("Authorization") String authkey);
 }

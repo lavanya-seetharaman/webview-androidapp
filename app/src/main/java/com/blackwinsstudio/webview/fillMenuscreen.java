@@ -180,8 +180,29 @@ public class fillMenuscreen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 AttributeMethods methods = RetrofitClient.getRetrofitInstance ().create (AttributeMethods.class);
-                Call<List<AttributesModel>> call = methods.getMachineInPlaceData (Helper.getAuthToken());
+                //Call<List<AttributesModel>> call = methods.getMachineInPlaceData (Helper.getAuthToken());
+                Call<List<OrdersModel>> call = methods.getAllOrders (Helper.getAuthToken());
+                // Orders API invoking part
+                call.enqueue (new Callback<List<OrdersModel>> () {
+                    @Override
+                    public void onResponse(Call<List<OrdersModel>> call, Response<List<OrdersModel>> response) {
+                        Log.i (ApplicationConstant.TAG, "OnResponse Code"+ response.code ());
+                        List<OrdersModel> orderResponse = response.body ();
+                        //Log.i(ApplicationConstant.TAG,String.valueOf (orderResponse.size ()));
+                        Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (orderResponse.get (0).id)+ "Status :" +orderResponse.get(0).status);
+                       // Log.i(ApplicationConstant.TAG,String.valueOf (orderResponse.get (0).line_items.get (0).product_id));
+                        /*for(OrdersModel orderData: orderResponse){
+                            Log.i(ApplicationConstant.TAG,String.valueOf (orderData.id));
+                        }*/
 
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<OrdersModel>> call, Throwable t) {
+                        Log.e (ApplicationConstant.TAG,"onfailure"+ t.getMessage ());
+                    }
+                });
+                /*attribute API invoking part
                 call.enqueue (new Callback<List<AttributesModel>> () {
                     @Override
                     public void onResponse(Call<List<AttributesModel>> call, Response<List<AttributesModel>> response) {
@@ -197,7 +218,7 @@ public class fillMenuscreen extends AppCompatActivity {
                     public void onFailure(Call<List<AttributesModel>> call, Throwable t) {
                         Log.e (ApplicationConstant.TAG,"onfailure"+ t.getMessage ());
                     }
-                });
+                });*/
             }
         });
     }
