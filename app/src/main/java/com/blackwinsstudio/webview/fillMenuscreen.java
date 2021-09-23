@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
+import android.app.Application;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -36,6 +37,7 @@ public class fillMenuscreen extends AppCompatActivity {
     List<Integer> QtyList = new ArrayList<Integer> () ;
     Button DoneButton, AddProductDB, AddRefillProduct, CurrentMachineStatus;
     FillProductDetails productDetails = new FillProductDetails ();
+    OrderedItemModel orderedItemModel = new OrderedItemModel ();
     Spinner Quantity;
     Tray trayDetails = new Tray ();
     ArrayList<Tray> trays;
@@ -43,7 +45,7 @@ public class fillMenuscreen extends AppCompatActivity {
     {
         trays = new ArrayList<> ();
     }
-
+    Arrays ProductID;
     TextInputLayout productSKU;
     String SetStatus="Processing";
     String SelectedSlot , SelectedRow;
@@ -55,6 +57,8 @@ public class fillMenuscreen extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.activity_fill_menuscreen);
+
+        // initializing our views
         LabelLayout = findViewById (R.id.labellayout);
         ProductLayout = findViewById (R.id.productlayout);
         productSKU = findViewById (R.id.productID);
@@ -120,7 +124,6 @@ public class fillMenuscreen extends AppCompatActivity {
         QtyList.add(4);
 
         // Spinner adapter for Qty values
-
         ArrayAdapter<Integer> Qtyadapter = new ArrayAdapter<Integer> (this, android.R.layout.simple_spinner_item,QtyList);
         Qtyadapter.setDropDownViewResource (android.R.layout.simple_spinner_dropdown_item);
         Quantity.setPrompt ("Select the Quantity");
@@ -189,13 +192,37 @@ public class fillMenuscreen extends AppCompatActivity {
                         Log.i (ApplicationConstant.TAG, "OnResponse Code"+ response.code ());
                         List<OrdersModel> orderResponse = response.body ();
                         //Log.i(ApplicationConstant.TAG,String.valueOf (orderResponse.size ()));
-                        Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (orderResponse.get (0).id)+ "Status :" + orderResponse.get(0).status);
-                        Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (0).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (0).quantity) );
-                        Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (1).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (1).quantity) );
-                        /*for(OrdersModel orderData: orderResponse){
-                            Log.i(ApplicationConstant.TAG,String.valueOf (orderData.id));
-                        }*/
+                        Log.i(ApplicationConstant.TAG,"Order_Id :"+ String.valueOf (orderResponse.get (0).id)+ "Status :" + orderResponse.get (0).getStatus ());
+                        // CHECKING STATUS == "PROCESSING" IF STATUS IS "COMPLETED" DONT RETRIEVE THE DATA FURTHER
+                        if(orderResponse.get (0).getStatus ().equals (ApplicationConstant.ORDER_STATUS_PROCESSING)){
+                            //Forming orderedItemModel data here
+                            orderedItemModel.order_id = orderResponse.get (0).id;
+                            orderedItemModel.status =  orderResponse.get (0).getStatus ();
+                            //Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (0).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (0).quantity) );
+                            //Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (1).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (1).quantity) );
+                            for(LineItem lineItems: orderResponse.get(0).line_items){
+                                Log.i(ApplicationConstant.TAG,String.valueOf (lineItems.product_id)+ "Quantity :" + String.valueOf (lineItems.quantity));
+                                orderedItemModel.product_id = lineItems.product_id;
+                                orderedItemModel.quantity = lineItems.quantity;
+                                GetTheProductPosition(String.valueOf (orderedItemModel.product_id),orderedItemModel.quantity);
+                            }
+                        }
+                        /*for(OrdersModel eachorder: orderResponse){
+                            Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (eachorder.id)+ "Status :" + eachorder.status);
+                            // CHECKING STATUS == "PROCESSING" IF STATUS IS "COMPLETED" DONT RETRIEVE THE DATA FURTHER
+                            if(eachorder.status.equals (ApplicationConstant.ORDER_STATUS_PROCESSING)){
+                                //Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (0).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (0).quantity) );
+                                //Log.i(ApplicationConstant.TAG,"Product_Id : "+String.valueOf (orderResponse.get (0).line_items.get (1).product_id)+ "Quantity :" +String.valueOf (orderResponse.get (0).line_items.get (1).quantity) );
+                                for(LineItem lineItems: orderResponse.get(0).line_items){
+                                    Log.i(ApplicationConstant.TAG,String.valueOf (lineItems.product_id)+ String.valueOf (lineItems.quantity));
+                                    GetTheProductPosition(lineItems.product_id,lineItems.quantity);
+                                }
 
+                                //GetTheProductPosition();
+                            }
+                        /*else if(orderResponse.get(0).status.equals (ApplicationConstant.ORDER_STATUS_COMPLETED)){
+                            Toast.makeText (fillMenuscreen.this,"Recent Order Status : "+ApplicationConstant.ORDER_STATUS_COMPLETED, Toast.LENGTH_LONG).show ();
+                        }*/
                     }
 
                     @Override
@@ -222,7 +249,56 @@ public class fillMenuscreen extends AppCompatActivity {
                 });*/
             }
         });
+
+        // Calling a method to post the data and passing ordereditem object to custom API
+        DoneButton.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick(View view) {
+                postData();
+            }
+        });
     }
+
+    private void postData() {
+            if(orderedItemModel.getOrder_id ()!=0){
+                AttributeMethods bwt_methods = BwtRetrofitClient.getRetrofitInstance ().create (AttributeMethods.class);
+                Call<OrderedItemModel> bwt_call = bwt_methods.postOrderedItems (orderedItemModel.getOrder_id (), orderedItemModel.getStatus (), orderedItemModel.getProduct_id (), orderedItemModel.getQuantity (), orderedItemModel.getOptions ());
+                bwt_call.enqueue (new Callback<OrderedItemModel> () {
+                    @Override
+                    public void onResponse(Call<OrderedItemModel> call, Response<OrderedItemModel> response) {
+                        Log.i (ApplicationConstant.TAG, "OnResponse Code :"+ response.code ());
+                        Log.i (ApplicationConstant.TAG, "OnResponse Message :"+ response.message ());
+                        Toast.makeText (fillMenuscreen.this, response.message (), Toast.LENGTH_LONG).show ();
+                    }
+
+                    @Override
+                    public void onFailure(Call<OrderedItemModel> call, Throwable t) {
+                        Log.e (ApplicationConstant.TAG,"onfailure"+ t.getMessage ());
+                    }
+                });
+            }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void GetTheProductPosition(String product_id, int quantity) {
+        AttributeMethods methods = RetrofitClient.getRetrofitInstance ().create (AttributeMethods.class);
+        Call<ProductInformation> pcall = methods.getProductById (Helper.getAuthToken(),product_id);
+        pcall.enqueue (new Callback<ProductInformation> () {
+            @Override
+            public void onResponse(Call<ProductInformation> call, Response<ProductInformation> response) {
+                Log.i (ApplicationConstant.TAG, "OnResponse Code :"+ response.code ());
+                Log.i(ApplicationConstant.TAG,"options :" + response.body ().attributes.get (0).options.get (0));
+                orderedItemModel.options = response.body ().attributes.get (0).options.get (0);
+            }
+
+            @Override
+            public void onFailure(Call<ProductInformation> call, Throwable t) {
+                Log.e (ApplicationConstant.TAG,"onfailure"+ t.getMessage ());
+            }
+        });
+    }
+
 
     public void Opensastaamart(){
         Intent intent = new Intent(this, MainActivity.class);

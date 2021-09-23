@@ -49,6 +49,14 @@ public class OrdersModel {
     public Date date_paid_gmt;
     public String currency_symbol;
     public Links _links;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
 class Billing{
     public String first_name;
