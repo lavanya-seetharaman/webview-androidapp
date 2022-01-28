@@ -9,8 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class BwtRetrofitClient {
     private static Retrofit bwtRetrofitClient;
-    private static String BWT_BASE_URL="https://bwt-custom-api.herokuapp.com/";
+    //private static String BWT_BASE_URL="https://bwt-custom-api.herokuapp.com/";
 
+    private static String BWT_BASE_URL="https://sastamart-vendor-users.herokuapp.com/";
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
     private static Gson gson = new GsonBuilder ().setDateFormat("yyyy-MM-dd").create();

@@ -33,4 +33,7 @@ public interface AttributeMethods {
                                             @Field("ProductID") int product_id,
                                             @Field("Qty") int quantity,
                                             @Field("Options")String options);
+
+    @GET("api/user-vendors")
+    Call<VendorUserModel> getVendorLoginUser();
 }

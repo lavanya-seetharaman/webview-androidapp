@@ -18,7 +18,16 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
+import org.eclipse.paho.android.service.MqttAndroidClient;
+import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +47,7 @@ public class fillMenuscreen extends AppCompatActivity {
     Button DoneButton, AddProductDB, AddRefillProduct, CurrentMachineStatus;
     FillProductDetails productDetails = new FillProductDetails ();
     OrderedItemModel orderedItemModel = new OrderedItemModel ();
+    MqttAndroidClient client;
     Spinner Quantity;
     Tray trayDetails = new Tray ();
     ArrayList<Tray> trays;
@@ -141,7 +151,40 @@ public class fillMenuscreen extends AppCompatActivity {
         });
 
 
-        DoneButton.setOnClickListener (new View.OnClickListener () {
+
+        /* MQTT client Start Here*/
+        //String clientId = MqttClient.generateClientId();
+        String clientId = "Suthar_Electronics";
+        client = new MqttAndroidClient(this.getApplicationContext(), "tcp://broker.hivemq.com:1883",
+                        clientId);
+
+
+        try {
+            IMqttToken token = client.connect();
+            client.acknowledgeMessage ("Sent");
+            token.setActionCallback(new IMqttActionListener () {
+                @Override
+                public void onSuccess(IMqttToken asyncActionToken) {
+                    // We are connected
+                    Log.d(ApplicationConstant.MQTT_TAG, "onSuccess");
+                }
+
+                @Override
+                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // Something went wrong e.g. connection timeout or firewall problems
+                    Log.d(ApplicationConstant.MQTT_TAG, "onFailure");
+
+                }
+            });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+        /* MQTT client Ends Here */
+
+
+        /*Post Custom Order Item starts here*/
+        // Rewritten the done functionality below in line no:294
+        /*DoneButton.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
                 productDetails.setProductSKU (productSKU.getEditText ().getText ().toString ());
@@ -155,8 +198,10 @@ public class fillMenuscreen extends AppCompatActivity {
                 Log.i ("JSON RESPONSE", "onClick:"+productDetails.toString ());
                 Toast.makeText (fillMenuscreen.this, productDetails.toString (), Toast.LENGTH_LONG).show ();
             }
-        });
+        });*/
+        /*so commenting above done click function here*/
 
+        /*Post Custom Order Item starts here*/
         AddProductDB.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
@@ -203,9 +248,12 @@ public class fillMenuscreen extends AppCompatActivity {
                             for(LineItem lineItems: orderResponse.get(0).line_items){
                                 Log.i(ApplicationConstant.TAG,String.valueOf (lineItems.product_id)+ "Quantity :" + String.valueOf (lineItems.quantity));
                                 orderedItemModel.product_id = lineItems.product_id;
+                                String productConvert_id = String.valueOf(orderedItemModel.product_id);
+                                productSKU.getEditText ().setText(productConvert_id);
                                 orderedItemModel.quantity = lineItems.quantity;
                                 GetTheProductPosition(String.valueOf (orderedItemModel.product_id),orderedItemModel.quantity);
                             }
+                            Toast.makeText (fillMenuscreen.this, "Order Information received successfully", Toast.LENGTH_LONG).show ();
                         }
                         /*for(OrdersModel eachorder: orderResponse){
                             Log.i(ApplicationConstant.TAG,"Order_Id :"+String.valueOf (eachorder.id)+ "Status :" + eachorder.status);
@@ -254,15 +302,81 @@ public class fillMenuscreen extends AppCompatActivity {
         DoneButton.setOnClickListener (new View.OnClickListener () {
             @Override
             public void onClick(View view) {
-                postData();
+                productDetails.setProductSKU (productSKU.getEditText ().getText ().toString ());
+                productDetails.setStatus (SetStatus);
+                //trayDetails.setProductColumn ("A-11");
+                trayDetails.setProductColumn (SelectedSlot + SelectedRow);
+                //trayDetails.setProductQuantity (Integer.parseInt (Quantity.getText ().toString ()));
+                trayDetails.setProductQuantity (productQty);
+                trays.add (trayDetails);
+                productDetails.setTrayDetails (trays);
+                Log.i ("JSON RESPONSE", "onClick:"+productDetails.toString ());
+                Toast.makeText (fillMenuscreen.this, productDetails.toString (), Toast.LENGTH_LONG).show ();
+                //postData();
+                //publishMQTTMessage();
             }
         });
     }
 
+    private void publishMQTTMessage() {
+        Gson orderedJsonObject = new Gson ();
+        String payload =orderedJsonObject.toJson (orderedItemModel);
+        //orderedJsonObject.
+        //String topic = "VM_NI/SE/Testing";
+        String topic ="vending/1";
+       // String payload = "orderid-1234";
+        byte[] encodedPayload = new byte[0];
+        try {
+            encodedPayload = payload.getBytes("UTF-8");
+            MqttMessage message = new MqttMessage(encodedPayload);
+            IMqttDeliveryToken pubToken = client.publish(topic, message);
+            if(pubToken.isComplete ()){
+                Log.d(ApplicationConstant.MQTT_TAG, "Published");
+            }
+            //Log.d(TAG, "Published");
+
+        } catch (UnsupportedEncodingException | MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /* MQTT cloud Information
+    client name: deployment-h611068d
+    MQTT Client Id : ec50aa24-fc62-481b-ba01-cb66ef4d57e2
+    Protocol :mqtt/tcp
+    Host: mqtt://h611068d.us-east-1.emqx.cloud:15484
+    username: blackwinstech
+    password:bws24
+     */
+    /*private void publishMQTTMessage() {
+        Gson orderedJsonObject = new Gson ();
+        String payload =orderedJsonObject.toJson (orderedItemModel);
+        //orderedJsonObject.
+        String topic = "vending 1";
+        // String payload = "orderid-1234";
+        byte[] encodedPayload = new byte[0];
+        try {
+            encodedPayload = payload.getBytes("UTF-8");
+            MqttMessage message = new MqttMessage(encodedPayload);
+            IMqttDeliveryToken pubToken = client.publish(topic, message);
+            if(pubToken.isComplete ()){
+                Log.d(ApplicationConstant.MQTT_TAG, "Published");
+            }
+            //Log.d(TAG, "Published");
+
+        } catch (UnsupportedEncodingException | MqttException e) {
+            e.printStackTrace();
+        }
+    }*/
+
     private void postData() {
             if(orderedItemModel.getOrder_id ()!=0){
                 AttributeMethods bwt_methods = BwtRetrofitClient.getRetrofitInstance ().create (AttributeMethods.class);
-                Call<OrderedItemModel> bwt_call = bwt_methods.postOrderedItems (orderedItemModel.getOrder_id (), orderedItemModel.getStatus (), orderedItemModel.getProduct_id (), orderedItemModel.getQuantity (), orderedItemModel.getOptions ());
+                /* POST THE APIcalls Data*/
+                //Call<OrderedItemModel> bwt_call = bwt_methods.postOrderedItems (orderedItemModel.getOrder_id (), orderedItemModel.getStatus (), orderedItemModel.getProduct_id (), orderedItemModel.getQuantity (), orderedItemModel.getOptions ());
+                /* POST THE App Data*/
+                Call<OrderedItemModel> bwt_call = bwt_methods.postOrderedItems (orderedItemModel.getOrder_id (), orderedItemModel.getStatus (), Integer.parseInt(productDetails.getProductSKU ()), trayDetails.getProductQuantity (), trayDetails.getProductColumn());
                 bwt_call.enqueue (new Callback<OrderedItemModel> () {
                     @Override
                     public void onResponse(Call<OrderedItemModel> call, Response<OrderedItemModel> response) {

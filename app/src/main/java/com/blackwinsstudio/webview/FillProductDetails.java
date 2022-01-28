@@ -1,7 +1,9 @@
 package com.blackwinsstudio.webview;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 public class FillProductDetails {
     private String ProductSKU;
@@ -24,10 +26,9 @@ public class FillProductDetails {
         this.status = status;
     }
 
-    public ArrayList<Tray> getTrayDetails() {
-        return trayDetails;
-    }
 
+
+    @NonNull
     @Override
     public String toString() {
         return "FillProductDetails{" +

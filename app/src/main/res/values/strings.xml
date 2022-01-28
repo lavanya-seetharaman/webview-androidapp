@@ -13,13 +13,18 @@
     <string name="product_id">productId</string>
     <string name="product_search_text">Product ID/Product Name/SKU</string>
     <string name="hint">productID</string>
-    <string name="spinner_Col_text">Select slot ( A,B, ..E)</string>
-    <string name="spinner_Row_text">Select row( 1, 2, ..5)</string>
+    <string name="spinner_Col_text">Select slot ( A,B,C,D E)</string>
+    <string name="spinner_Row_text">Select row( 1, 2,3,4,5)</string>
     <string name="Add_Refill_Product">Add/Refill product</string>
     <string name="spinner_qty_prompt_text">Quantity</string>
     <string name="qty">qty</string>
-    <string name="hint_qty">Quantity</string>
+    <string name="hint_qty">Select the Quantity</string>
     <string name="add_new_product">add new product to DB</string>
     <string name="done">Done</string>
+    <string name="reset">reset</string>
 <string name="CurrentMachineStatus">Get Current Status</string>
+    <string name="email" >Email</string>
+    <string name="password">password</string>
+    <string name="signin">signin</string>
+    <string name="cancel">cancel</string>
 </resources>
