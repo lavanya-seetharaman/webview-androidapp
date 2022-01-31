@@ -21,7 +21,6 @@ public class SigninDialog extends DialogFragment {
 
     VendorUserModel vendorUserObject = new VendorUserModel();
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -61,13 +60,6 @@ public class SigninDialog extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        //final EditText editText = view.findViewById(R.id.inEmail);
-
-        //if (getArguments() != null && !TextUtils.isEmpty(getArguments().getString("email")))
-         //   editText.setText(getArguments().getString("email"));
-
         Button btnDone = view.findViewById(R.id.btnDone);
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +68,7 @@ public class SigninDialog extends DialogFragment {
                 DialogListener dialogListener = (DialogListener) getActivity();
 
                 // sign in the user ...
-                AttributeMethods vendor_login_methods = BwtRetrofitClient.getRetrofitInstance().create(AttributeMethods.class);
+                AttributeMethods vendor_login_methods = BwtLoginRetrofitClient.getRetrofitInstance().create(AttributeMethods.class);
                 Call<VendorUserModel> bwt_vendor_call = vendor_login_methods.getVendorLoginUser();
                 bwt_vendor_call.enqueue(new Callback<VendorUserModel>() {
                     @Override

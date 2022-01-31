@@ -113,7 +113,6 @@ public class MainScreenActivity extends AppCompatActivity implements SigninDialo
             Bundle bundle = new Bundle();
             bundle.putBoolean("notAlertDialog",true);
             signDialog.setArguments(bundle);
-
             signDialog.show(getSupportFragmentManager(), "signin");
 
 

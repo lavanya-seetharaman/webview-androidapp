@@ -10,7 +10,7 @@ import okhttp3.Response;
 
 public class AuthenticationInterceptor implements Interceptor {
 
-    private String authToken="YWRtaW46IDJLTHU5OW9uJiM";
+    private String authToken="yewv^EIUol#lOZdM2IocQ^X!";
     @NonNull
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {

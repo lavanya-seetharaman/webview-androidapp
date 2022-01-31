@@ -15,7 +15,9 @@ public class Helper {
     public static String getAuthToken(){
         byte[] data = (ApplicationConstant.API_USER_NAME + ":" + ApplicationConstant.API_PASSWORD).getBytes (StandardCharsets.UTF_8);
 
-        String result = "Basic " + "YWRtaW46IDJLTHU5OW9uJiM=";
+        //String result = "Basic " + "YWRtaW46IDJLTHU5OW9uJiM=";
+        // Second Modification
+        String result = "Basic " + "YWRtaW46eWV3dl5FSVVvbCNsT1pkTTJJb2NRXlgh";
         Log.i (ApplicationConstant.TAG, result);
        // return "Basic " + Base64.getEncoder ().encodeToString (data);
         return result;

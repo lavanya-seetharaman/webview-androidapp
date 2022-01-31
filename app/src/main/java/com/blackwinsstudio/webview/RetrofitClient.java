@@ -9,7 +9,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static Retrofit retrofit;
-    private static String BASE_URL="https://staging5.sastaamart.com/wp-json/";
+    //private static String BASE_URL="https://staging5.sastaamart.com/wp-json/";
+    //Second modifications
+    private static String BASE_URL="https://brownbutter.nirmalinnovations.com/wp-json/";
 
     private static OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 

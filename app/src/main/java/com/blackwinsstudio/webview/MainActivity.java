@@ -18,9 +18,12 @@ public class MainActivity extends AppCompatActivity {
         WebView webview = (WebView)findViewById(R.id.webview);
         PageToLoad = getIntent ().getStringExtra ("page");
         if(PageToLoad.equalsIgnoreCase ("fillmenuscreen")){
-          url = "https://staging5.sastaamart.com/login/";
+          //url = "https://staging5.sastaamart.com/login/";
+            //second modification
+            url="https://brownbutter.nirmalinnovations.com/login/";
         }else if(PageToLoad.equalsIgnoreCase ("mainscreen")){
-            url = "https://staging5.sastaamart.com/shop/";
+            //second modification
+            url = "https://brownbutter.nirmalinnovations.com/shop/";
         }
         webview.setWebViewClient(new myWebViewClient());
         webview.getSettings().setJavaScriptEnabled(true);
